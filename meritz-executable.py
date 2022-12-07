@@ -1,9 +1,5 @@
 import urllib
 from urllib.request import urlopen
-#import numpy as np
-#import pandas as pd
-#import json
-#from bs4 import BeautifulSoup
 import re
 import requests
 import time
@@ -30,11 +26,6 @@ def getNaverFinance(code,encoding="euc-kr"):
 
 def getPrice(code):
     htmlfile=getNaverFinance(code)
-    #df_list = pd.read_html(htmlfile)
-    #df = df_list[1][1:]
-    #df.columns = df_list[1].iloc[0]
-
-    #matches = re.findall(r'<div id="middle" class="new_totalinfo">(.+?)</dl>', htmlfile, flags=re.DOTALL)
     matches2 = re.findall(r'현재가(.+?)전일', htmlfile, flags=re.DOTALL)
     return float(matches2[0].replace(',',''))
 
@@ -48,11 +39,7 @@ exch_rate_sec=0.1607327
 thrshld_min=0.028
 thrshld_max=0.081
 
-def getDiscountRates():
-    price_hol=getPrice(meritzHoldings)
-    price_ins=getPrice(meritzInsuarances)
-    price_sec=getPrice(meritzSecurities)
-    print([price_hol,price_ins,price_sec])
+def getDiscountRates(price_hol,price_ins,price_sec):
 
     disc_rate_ins = 1 - price_ins/price_hol/exch_rate_ins
     disc_rate_sec = 1 - price_sec/price_hol/exch_rate_sec
@@ -74,6 +61,14 @@ print("=======           TIMESTAMP            =======")
 print("[price_hol,price_ins,price_sec]")
 print("[discount_rate_insuarance,discount_rate_securities]")
 for i in range(argv1):
+
+    price_hol=getPrice(meritzHoldings)
+    price_ins=getPrice(meritzInsuarances)
+    price_sec=getPrice(meritzSecurities)
+
     print("======="+str(datetime.datetime.now(pytz.timezone('Asia/Seoul')))+"=======")
-    print(getDiscountRates())
-    #time.sleep(10)
+    print("exc_ins is " + str(exch_rate_ins))
+    print("exc_sec is " + str(exch_rate_sec))
+    print("["+str(int(price_hol))+","+str(int(price_ins))+","+str(int(price_sec))+"]")
+    print(getDiscountRates(price_hol,price_ins,price_sec))
+    time.sleep(10)
