@@ -52,6 +52,7 @@ def getDiscountRates():
     price_hol=getPrice(meritzHoldings)
     price_ins=getPrice(meritzInsuarances)
     price_sec=getPrice(meritzSecurities)
+    print([price_hol,price_ins,price_sec])
 
     disc_rate_ins = 1 - price_ins/price_hol/exch_rate_ins
     disc_rate_sec = 1 - price_sec/price_hol/exch_rate_sec
@@ -66,11 +67,13 @@ else:
 if type(argv1) is not int:
     argv1 = int(argv1)
 
-print("exchange rate for insuarance is " + str(exch_rate_ins))
-print("exchange rate for securities is " + str(exch_rate_sec))
+print("exchange rate for insuarance(ins) is " + str(exch_rate_ins))
+print("exchange rate for securities(sec) is " + str(exch_rate_sec))
 print("Running for " + str(argv1) + " times")
-print("[insuarance,securities]")
+print("=======           TIMESTAMP            =======")
+print("[price_hol,price_ins,price_sec]")
+print("[discount_rate_insuarance,discount_rate_securities]")
 for i in range(argv1):
-    #print("discount rates at " + str(datetime.datetime.now(pytz.timezone('Asia/Seoul'))))
+    print("======="+str(datetime.datetime.now(pytz.timezone('Asia/Seoul')))+"=======")
     print(getDiscountRates())
-    time.sleep(10)
+    #time.sleep(10)
