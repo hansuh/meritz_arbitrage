@@ -6,6 +6,17 @@ import time
 import datetime
 import pytz
 
+# Insuarance merger schedule
+# 2023-02-01 end of trading + 2 days
+# 2023-02-23 issuance of new shares
+
+# Securities merger schedule
+# 2023-04-05 end of trading + 2 days
+# 2023-04-25 issuance of new shares
+
+# This version of the file is for monitoring after Feb 2023 until (after the merger of insuarance)
+# python3.8 /home/hankyulsuh/meritz-pyanywhere-feb2023.py
+# Meritz discounts monitoring3
 
 def getHtmlFile(url,opts,verbose = 0,encoding="utf8"):
     urladdress = url + '?' + urllib.parse.urlencode(opts)
@@ -35,21 +46,18 @@ def getPrice(code):
     return float(matches2[0].replace(',',''))
 
 meritzHoldings="138040"
-meritzInsuarances="000060"
 meritzSecurities="008560"
 
-exch_rate_ins=1.2657378
 exch_rate_sec=0.1607327
 
 thrshld_min=0.048
 thrshld_max=0.081
 
-def getDiscountRates(price_hol,price_ins,price_sec):
+def getDiscountRates(price_hol,price_sec):
 
-    disc_rate_ins = 1 - price_ins/price_hol/exch_rate_ins
     disc_rate_sec = 1 - price_sec/price_hol/exch_rate_sec
 
-    return (disc_rate_ins,disc_rate_sec)
+    return (disc_rate_sec,)
 
 def send_email_alert(subject,text):
     print("Set your email API", flush=True)
@@ -70,26 +78,19 @@ while(True):
 
         #Fetch data and calculate discount rates
         price_hol=getPrice(meritzHoldings)
-        price_ins=getPrice(meritzInsuarances)
         price_sec=getPrice(meritzSecurities)
 
-        (disc_rate_ins,disc_rate_sec)=getDiscountRates(price_hol,price_ins,price_sec)
+        (disc_rate_sec,)=getDiscountRates(price_hol,price_sec)
 
         #Print out the data
         text=""
         text+="======="+str(datetime.datetime.now(pytz.timezone('Asia/Seoul')))+"=======\n"
-        text+="["+str(int(price_hol))+","+str(int(price_ins))+","+str(int(price_sec))+"]\n"
-        text+="disc_rate_ins=%.4f" % (100*disc_rate_ins) + "%\n"
+        text+="["+str(int(price_hol))+","+"NoIns"+","+str(int(price_sec))+"]\n"
         text+="disc_rate_sec=%.4f" % (100*disc_rate_sec) + "%"
         print(text, flush=True)
 
         #See if the drs are out of the thresholds
         title="[Meritz]"
-
-        if disc_rate_ins<thrshld_min:
-            title+="INS EXPENSIVE "
-        elif disc_rate_ins>thrshld_max:
-            title+="INS CHEAP "
 
         if disc_rate_sec<thrshld_min:
             title+="SEC EXPENSIVE "
@@ -113,8 +114,8 @@ while(True):
         #     print(current_time,"\tHappy New Year!", flush=True)
         #     break
 
-        if current_time.year==2023 and current_time.month!=1:
-            print(current_time,"\tWrong month!", flush=True)
+        if current_time.year!=2023 or current_time.month<2 or current_time.month>=4:
+            print(current_time,"\tBye bye!", flush=True)
             break
 
         #If the market hour is done wait until the next 9am
